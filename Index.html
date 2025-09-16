@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PKW Calculator</title>
+
+  <!-- PWA के लिए Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; background: #0f172a; color: #fff; }
+    .calculator { width: 300px; margin: 40px auto; }
+    #display { width: 100%; height: 50px; font-size: 22px; text-align: right; margin-bottom: 10px; padding: 5px; }
+    .keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    button { padding: 15px; font-size: 18px; border-radius: 8px; border: none; cursor: pointer; }
+    button.op { background: #ff6b6b; color: white; }
+    button.eq { background: #28a745; color: white; grid-column: span 2; }
+    button.cl { background: #ffc107; color: black; }
+  </style>
+</head>
+<body>
+  <h1>📱 PKW Calculator</h1>
+  <div class="calculator">
+    <input type="text" id="display" disabled>
+    <div class="keys">
+      <button class="cl" onclick="clearDisplay()">C</button>
+      <button onclick="back()">⌫</button>
+      <button class="op" onclick="append('%')">%</button>
+      <button class="op" onclick="append('/')">÷</button>
+
+      <button onclick="append('7')">7</button>
+      <button onclick="append('8')">8</button>
+      <button onclick="append('9')">9</button>
+      <button class="op" onclick="append('*')">×</button>
+
+      <button onclick="append('4')">4</button>
+      <button onclick="append('5')">5</button>
+      <button onclick="append('6')">6</button>
+      <button class="op" onclick="append('-')">−</button>
+
+      <button onclick="append('1')">1</button>
+      <button onclick="append('2')">2</button>
+      <button onclick="append('3')">3</button>
+      <button class="op" onclick="append('+')">+</button>
+
+      <button onclick="append('0')" style="grid-column: span 2;">0</button>
+      <button onclick="append('.')">.</button>
+      <button class="eq" onclick="calculate()">=</button>
+    </div>
+  </div>
+
+  <script>
+    let display = document.getElementById("display");
+
+    function append(val) { display.value += val; }
+    function clearDisplay() { display.value = ""; }
+    function back() { display.value = display.value.slice(0, -1); }
+    function calculate() {
+      try { display.value = eval(display.value.replace(/÷/g,"/").replace(/×/g,"*")); }
+      catch { display.value = "Error"; }
+    }
+
+    // Service Worker Registration (Offline Support)
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js")
+      .then(() => console.log("Service Worker Registered"));
+    }
+  </script>
+</body>
+</html>mages[randomIndex];
+
+  giftImg.onload = function() {
+    burst.classList.add("animate"); // धमाका burst
+    setTimeout(() => {
+      giftImg.classList.add("blast"); // गिफ्ट का zoom blast
+    }, 200);
+  };
+}
+
+showFullScreen();
+</script>
+
+</body>
+</html></html>
