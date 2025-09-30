@@ -3,28 +3,70 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>iOS Style Calculator</title>
+  <title>Fast Calculator - Prakash Style</title>
   <style>
     :root{
-      --bg:#000000;
-      --btn-dark:#333333;
-      --btn-grey:#a5a5a5;
-      --accent:#ff9f0a;
+      --bg:#0b0b0c;
+      --panel:#0f0f10;
+      --btn-dark:#2b2b2b;
+      --btn-grey:#4b4b4b;
+      --accent:#ff9a1f;
       --white:#ffffff;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      --screen-height:65vh;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
     }
-    body{
-      height:100vh;
-      margin:0;
-      background: var(--bg);
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: #000;  /* Full black background for AppsGeyser */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .phone {
+      width: 360px;
+      max-width: 92vw;
+      height: 800px;
+      background: var(--panel); /* dark background */
+      border-radius: 34px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.45);
+      padding: 20px;
+      box-sizing: border-box;
+      position: relative;
+      overflow: hidden;
       display:flex;
-      align-items:center;
-      justify-content:center;
+      flex-direction:column;
+      justify-content:flex-start;
+    }
+
+    .notch {
+      width: 68px;
+      height: 6px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 4px;
+      align-self:center;
+      margin-top:6px;
+      margin-bottom:6px;
+    }
+
+    .title {
+      color: rgba(255,255,255,0.85);
+      text-align:center;
+      font-weight:700;
+      font-size:24px;
+      margin:8px 0 6px 0;
+      opacity:0.95;
     }
 
     .calc {
-      width: 320px;
-      max-width: 95vw;
+      background: var(--bg);
+      border-radius: 24px;
+      padding: 18px;
+      margin-top: 6px;
+      height: calc(100% - 80px);
+      box-sizing: border-box;
       display:flex;
       flex-direction:column;
       justify-content:space-between;
@@ -34,99 +76,135 @@
       color:var(--white);
       text-align:right;
       font-size:64px;
-      line-height:1.2;
-      min-height: 90px;
-      padding: 20px 10px;
-      font-weight:400;
+      line-height:1;
+      min-height: 96px;
+      padding-right: 10px;
+      font-weight:600;
       overflow:hidden;
       white-space:nowrap;
+    }
+    .display .small {
+      font-size:14px;
+      color: rgba(255,255,255,0.45);
+      display:block;
+      text-align:right;
+      margin-bottom:6px;
     }
 
     .grid {
       display:grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      padding: 10px;
+      gap: 14px;
+      align-items:center;
+      justify-items:stretch;
+      padding-bottom: 8px;
     }
 
     .btn {
       height: 68px;
-      border-radius: 50%;
+      min-width:0;
+      border-radius: 999px;
       border: none;
-      font-size: 24px;
-      font-weight:500;
+      font-size: 22px;
+      font-weight:600;
+      box-shadow: none;
       display:flex;
       align-items:center;
       justify-content:center;
       user-select:none;
       -webkit-user-select:none;
+      touch-action: manipulation;
       transition: transform .07s ease;
     }
 
-    .btn:active { transform: scale(0.95); }
+    .btn:active { transform: scale(0.96); }
 
     .btn.dark {
       background: var(--btn-dark);
-      color: var(--white);
+      color: rgba(255,255,255,0.95);
     }
     .btn.grey {
       background: var(--btn-grey);
-      color: #000;
+      color: rgba(255,255,255,0.95);
       font-weight:600;
     }
     .btn.accent {
       background: var(--accent);
       color: #fff;
-      font-weight:600;
+      font-weight:700;
     }
 
+    .col-operator { grid-column: 4 / 5; }
+
     .btn.zero {
-      grid-column: 1 / 3; 
-      border-radius: 34px;
-      justify-content:flex-start;
-      padding-left:28px;
+      grid-column: 1 / 3; /* 0 button spans two columns */
+    }
+
+    .bottom-row {
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:14px;
+    }
+
+    @media (max-width:420px){
+      .btn { height:64px; font-size:20px; }
+      .display { font-size:54px; min-height:84px; }
+    }
+    @media (max-width:340px){
+      .phone { height:740px; }
+      .btn { height:56px; font-size:18px; }
+      .display { font-size:48px; min-height:74px; }
     }
   </style>
 </head>
 <body>
-  <div class="calc" role="application" aria-label="Calculator">
-    <div class="display" id="display">0</div>
+  <div class="phone" role="application" aria-label="Calculator">
+    <div class="notch" aria-hidden="true"></div>
+    <div class="title">Fast</div>
 
-    <div class="grid" id="buttons">
-      <!-- row 1 -->
-      <button class="btn grey" data-action="clear">AC</button>
-      <button class="btn grey" data-action="neg">+/-</button>
-      <button class="btn grey" data-action="percent">%</button>
-      <button class="btn accent" data-action="operator" data-value="/">÷</button>
+    <div class="calc">
+      <div class="display" id="display">
+        <span class="small" id="subdisplay"></span>
+        <span id="main">0</span>
+      </div>
 
-      <!-- row 2 -->
-      <button class="btn dark" data-value="7">7</button>
-      <button class="btn dark" data-value="8">8</button>
-      <button class="btn dark" data-value="9">9</button>
-      <button class="btn accent" data-action="operator" data-value="*">×</button>
+      <div class="grid" id="buttons">
+        <!-- row 1 -->
+        <button class="btn grey" data-action="clear">AC</button>
+        <button class="btn grey" data-action="neg">+/-</button>
+        <button class="btn grey" data-action="percent">%</button>
+        <button class="btn accent col-operator" data-action="operator" data-value="/">÷</button>
 
-      <!-- row 3 -->
-      <button class="btn dark" data-value="4">4</button>
-      <button class="btn dark" data-value="5">5</button>
-      <button class="btn dark" data-value="6">6</button>
-      <button class="btn accent" data-action="operator" data-value="-">−</button>
+        <!-- row 2 -->
+        <button class="btn dark" data-value="7">7</button>
+        <button class="btn dark" data-value="8">8</button>
+        <button class="btn dark" data-value="9">9</button>
+        <button class="btn accent col-operator" data-action="operator" data-value="*">×</button>
 
-      <!-- row 4 -->
-      <button class="btn dark" data-value="1">1</button>
-      <button class="btn dark" data-value="2">2</button>
-      <button class="btn dark" data-value="3">3</button>
-      <button class="btn accent" data-action="operator" data-value="+">+</button>
+        <!-- row 3 -->
+        <button class="btn dark" data-value="4">4</button>
+        <button class="btn dark" data-value="5">5</button>
+        <button class="btn dark" data-value="6">6</button>
+        <button class="btn accent col-operator" data-action="operator" data-value="-">−</button>
 
-      <!-- row 5 -->
-      <button class="btn dark zero" data-value="0">0</button>
-      <button class="btn dark" data-action="decimal">.</button>
-      <button class="btn accent" data-action="equals">=</button>
+        <!-- row 4 -->
+        <button class="btn dark" data-value="1">1</button>
+        <button class="btn dark" data-value="2">2</button>
+        <button class="btn dark" data-value="3">3</button>
+        <button class="btn accent col-operator" data-action="operator" data-value="+">+</button>
+
+        <!-- row 5 -->
+        <button class="btn dark zero" data-value="0">0</button>
+        <button class="btn dark" data-action="decimal">.</button>
+        <button class="btn accent col-operator" data-action="equals">=</button>
+      </div>
     </div>
   </div>
 
   <script>
     (function(){
-      const display = document.getElementById('display');
+      const displayMain = document.getElementById('main');
+      const subdisplay = document.getElementById('subdisplay');
       const buttons = document.getElementById('buttons');
 
       let displayValue = '0';
@@ -136,7 +214,20 @@
       let lastSecond = null;
 
       function updateDisplay(){
-        display.textContent = displayValue;
+        const maxLen = 12;
+        let out = displayValue;
+        if (out.length > maxLen){
+          let num = Number(out);
+          out = num.toPrecision(9);
+        }
+        displayMain.textContent = out;
+        if (firstOperand !== null && operator !== null && !waitingForSecond){
+          subdisplay.textContent = `${firstOperand} ${operator} `;
+        } else if (firstOperand !== null && operator !== null && waitingForSecond){
+          subdisplay.textContent = `${firstOperand} ${operator}`;
+        } else {
+          subdisplay.textContent = '';
+        }
       }
 
       function inputDigit(d){
@@ -221,7 +312,11 @@
         let second = waitingForSecond ? lastSecond : displayValue;
         if (second === null) return;
         const result = performCalculation(operator, firstOperand, second);
-        displayValue = (!isFinite(result) || isNaN(result)) ? 'Error' : String(result);
+        if (!isFinite(result) || isNaN(result)){
+          displayValue = 'Error';
+        } else {
+          displayValue = String(result);
+        }
         lastSecond = second;
         firstOperand = displayValue;
         waitingForSecond = true;
@@ -242,8 +337,29 @@
         if (action === 'clear') { clearAll(); return; }
         if (action === 'neg') { toggleSign(); return; }
         if (action === 'percent') { percent(); return; }
-        if (action === 'operator'){ handleOperator(btn.getAttribute('data-value')); return; }
-        if (action === 'equals'){ handleEquals(); return; }
+        if (action === 'operator'){
+          handleOperator(btn.getAttribute('data-value'));
+          return;
+        }
+        if (action === 'equals'){
+          handleEquals(); return;
+        }
+      });
+
+      window.addEventListener('keydown', (e)=>{
+        if (e.key >= '0' && e.key <= '9'){ inputDigit(e.key); return; }
+        if (e.key === '.') { inputDecimal(); return; }
+        if (e.key === 'Enter' || e.key === '=') { handleEquals(); return; }
+        if (e.key === 'Backspace'){
+          if (!waitingForSecond){
+            displayValue = displayValue.length > 1 ? displayValue.slice(0,-1) : '0';
+            updateDisplay();
+          }
+          return;
+        }
+        if (e.key === 'Escape') { clearAll(); return; }
+        if (['+','-','/','*'].includes(e.key)) { handleOperator(e.key); return; }
+        if (e.key === '%') { percent(); return; }
       });
 
       updateDisplay();
