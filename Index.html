@@ -26,9 +26,9 @@
     }
 
     .phone {
-      width: 100vw;
+      width: 95vw;          /* slim width */
+      max-width: 380px;
       height: 100vh;
-      max-width: 420px;
       background: var(--panel);
       display:flex;
       flex-direction:column;
@@ -49,8 +49,8 @@
       color: rgba(255,255,255,0.85);
       text-align:center;
       font-weight:700;
-      font-size:6vw;
-      margin:4px 0;
+      font-size:5vw;
+      margin:6px 0;
       opacity:0.95;
     }
 
@@ -66,10 +66,9 @@
     .display {
       color:var(--white);
       text-align:right;
-      font-size:8vw;
-      line-height:1;
-      min-height: 12vh;
-      padding-right: 4vw;
+      font-size:7vw;      /* proportional height */
+      min-height: 10vh;
+      padding-right: 3vw;
       padding-left: 2vw;
       font-weight:600;
       overflow:hidden;
@@ -87,18 +86,18 @@
     .grid {
       display:grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 2.5vw;
+      gap: 2vw;
       align-items:center;
       justify-items:stretch;
-      padding-bottom: 2vh;
+      padding-bottom:1.5vh;
     }
 
     .btn {
-      height: 14vw;
+      height: 12vw;        /* slim buttons */
       min-width:0;
       border-radius: 999px;
       border: none;
-      font-size: 5vw;
+      font-size: 4.5vw;
       font-weight:600;
       display:flex;
       align-items:center;
@@ -141,6 +140,9 @@
       </div>
 
       <div class="grid" id="buttons">
+        <!-- row 0: Backspace -->
+        <button class="btn grey" data-action="backspace">⌫</button>
+
         <!-- row 1 -->
         <button class="btn grey" data-action="clear">AC</button>
         <button class="btn grey" data-action="neg">+/-</button>
@@ -168,7 +170,6 @@
         <!-- row 5 -->
         <button class="btn dark zero" data-value="0">0</button>
         <button class="btn dark" data-action="decimal">.</button>
-        <button class="btn grey" data-action="backspace">⌫</button>
         <button class="btn accent col-operator" data-action="equals">=</button>
       </div>
     </div>
@@ -333,9 +334,10 @@
         if (e.key === 'Escape') { clearAll(); return; }
         if (['+','-','/','*'].includes(e.key)) { handleOperator(e.key); return; }
         if (e.key === '%') { percent(); return; }
+        if (e.key === 'n') { toggleSign(); return; } // optional: n se +/- toggle
       });
 
-      updateDisplay();
+      updateDisplay(); // initial display
     })();
   </script>
 </body>
