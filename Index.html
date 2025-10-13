@@ -1,334 +1,304 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="hi">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Simple Calculator</title>
-  <style>
-    :root{
-      --bg:#0b0b0c;
-      --panel:#0f0f10;
-      --btn-dark:#2b2b2b;
-      --btn-grey:#4b4b4b;
-      --accent:#ff9a1f;
-      --white:#ffffff;
-      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-    }
+<meta charset="utf-8">
+<title>Dhamaka Gift Reveal — Single Image</title>
+<style>
+  html,body {
+    height:100%;
+    margin:0;
+    font-family: Arial, sans-serif;
+    background:#fff;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
 
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-      background: #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+  .container{
+    position:relative;
+    width:100%;
+    height:100%;
+  }
 
-    .phone {
-      width: 95vw;
-      max-width: 380px;
-      height: 95vh;
-      background: var(--panel);
-      display:flex;
-      flex-direction:column;
-      justify-content:flex-end;
-      padding:0;
-      overflow:hidden;
-    }
+  #headline{
+    position:absolute;
+    top:18px;
+    width:100%;
+    text-align:center;
+    font-size:34px;
+    font-weight:700;
+    color:#ff2b2b;
+    text-shadow:2px 2px 6px rgba(0,0,0,0.5);
+    z-index:6;
+    pointer-events:none;
+    animation:headlinePulse 1.1s ease-in-out infinite alternate;
+  }
+  @keyframes headlinePulse {
+    from { transform:scale(1); opacity:0.7; }
+    to   { transform:scale(1.06); opacity:1; }
+  }
 
-    .notch {
-      width: 68px;
-      height: 6px;
-      background: rgba(255,255,255,0.04);
-      border-radius: 4px;
-      align-self:center;
-      margin:6px 0;
-    }
+  /* Image */
+  #gift {
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:none;           /* initially hidden until loaded */
+    transform:scale(0.78);
+    z-index:4;
+    position:relative;
+    transition:transform 600ms ease;
+    cursor:pointer;        /* click to replay effect */
+  }
 
-    .title {
-      color: rgba(255,255,255,0.85);
-      text-align:center;
-      font-weight:700;
-      font-size:5vw;
-      margin:6px 0;
-      opacity:0.95;
-    }
+  /* Burst */
+  .burst{
+    position:absolute;
+    top:50%;
+    left:50%;
+    width:0;
+    height:0;
+    background:radial-gradient(circle, rgba(255,80,60,0.95) 30%, rgba(255,200,0,0.0) 70%);
+    border-radius:50%;
+    transform:translate(-50%,-50%) scale(0);
+    z-index:3;
+    pointer-events:none;
+  }
+  .burst.animate { animation: burstAnim 0.65s cubic-bezier(.2,.9,.2,1) forwards; }
+  @keyframes burstAnim {
+    0%   { transform:translate(-50%,-50%) scale(0); opacity:1; }
+    55%  { transform:translate(-50%,-50%) scale(2.4); opacity:0.8; }
+    100% { transform:translate(-50%,-50%) scale(5.8); opacity:0; }
+  }
 
-    .calc {
-      flex: 1;
-      background: var(--bg);
-      display:flex;
-      flex-direction:column;
-      justify-content:flex-end;
-      padding:2vw 2vw 3vw 2vw;
-    }
+  /* Blast (image zoom) */
+  .blast {
+    animation:blastEffect 0.85s cubic-bezier(.2,.9,.2,1) forwards;
+  }
+  @keyframes blastEffect {
+    0%   { transform:scale(0.78) rotate(0deg); }
+    40%  { transform:scale(1.2) rotate(6deg); }
+    70%  { transform:scale(0.95) rotate(-4deg); }
+    100% { transform:scale(1) rotate(0deg); }
+  }
 
-    .display {
-      color: var(--white);
-      text-align:right;
-      font-size:7vw;
-      min-height: 12vh;
-      padding-right: 3vw;
-      padding-left: 2vw;
-      font-weight:600;
-      overflow:hidden;
-      white-space:nowrap;
-    }
+  /* Loader wrapper + spinner */
+  .loader-wrap {
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    z-index:7;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+  }
+  .loader {
+    width:56px;
+    height:56px;
+    border-radius:50%;
+    border:7px solid #e6e6e6;
+    border-top-color:#ff2b2b;
+    animation:spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
 
-    .display .small {
-      font-size:3.5vw;
-      color: rgba(255,255,255,0.45);
-      display:block;
-      text-align:right;
-      margin-bottom:4px;
-    }
+  .loading-text {
+    font-weight:600;
+    color:#333;
+    font-size:15px;
+    text-shadow:0 1px 0 #fff;
+  }
 
-    .grid {
-      display:grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 2vw;
-      margin-bottom:2vh;
-    }
+  /* Error overlay */
+  .error {
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    z-index:8;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    gap:10px;
+    background:rgba(255,255,255,0.95);
+    padding:14px 18px;
+    border-radius:10px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.15);
+    text-align:center;
+  }
+  .error button {
+    background:#ff3b3b;
+    color:#fff;
+    border:0;
+    padding:8px 12px;
+    border-radius:6px;
+    font-weight:700;
+    cursor:pointer;
+  }
 
-    .btn {
-      height: 14vw;
-      border-radius: 50%;
-      border: none;
-      font-size: 4.5vw;
-      font-weight:600;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      user-select:none;
-      touch-action: manipulation;
-      transition: transform .07s ease;
-    }
+  /* small sparkle after blast to keep lively */
+  .sparkle {
+    position:absolute;
+    width:40px;
+    height:40px;
+    top:18%;
+    right:12%;
+    pointer-events:none;
+    z-index:5;
+    opacity:0;
+  }
+  .sparkle.show {
+    animation: sparklePop 900ms ease forwards;
+  }
+  @keyframes sparklePop {
+    0% { transform:scale(0.6) rotate(0deg); opacity:0; }
+    30% { transform:scale(1.2) rotate(15deg); opacity:1; }
+    100% { transform:scale(1) rotate(0deg); opacity:0; }
+  }
 
-    .btn:active { transform: scale(0.96); }
-
-    .btn.dark {
-      background: var(--btn-dark);
-      color: rgba(255,255,255,0.95);
-    }
-    .btn.grey {
-      background: var(--btn-grey);
-      color: rgba(255,255,255,0.95);
-    }
-    .btn.accent {
-      background: var(--accent);
-      color: #fff;
-      font-weight:700;
-    }
-
-    .col-operator { grid-column: 4 / 5; }
-    .btn.zero { grid-column: 2 / 3; }
-  </style>
+  /* keep everything responsive */
+  @media (max-width:600px) {
+    #headline { font-size:22px; top:14px; }
+  }
+</style>
 </head>
 <body>
-  <div class="phone" role="application" aria-label="Simple Calculator">
-    <div class="notch" aria-hidden="true"></div>
-    <div class="title">Simple Calculator</div>
 
-    <div class="calc">
-      <div class="display" id="display">
-        <span class="small" id="subdisplay"></span>
-        <span id="main">0</span>
-      </div>
+<div class="container" id="container">
+  <div id="headline">💥 Super Dhamaka Offer 💥</div>
 
-      <div class="grid" id="buttons">
-        <button class="btn grey" data-action="clear">AC</button>
-        <button class="btn grey" data-action="neg">+/-</button>
-        <button class="btn grey" data-action="percent">%</button>
-        <button class="btn accent col-operator" data-action="operator" data-value="/">÷</button>
-
-        <button class="btn dark" data-value="7">7</button>
-        <button class="btn dark" data-value="8">8</button>
-        <button class="btn dark" data-value="9">9</button>
-        <button class="btn accent col-operator" data-action="operator" data-value="*">×</button>
-
-        <button class="btn dark" data-value="4">4</button>
-        <button class="btn dark" data-value="5">5</button>
-        <button class="btn dark" data-value="6">6</button>
-        <button class="btn accent col-operator" data-action="operator" data-value="-">−</button>
-
-        <button class="btn dark" data-value="1">1</button>
-        <button class="btn dark" data-value="2">2</button>
-        <button class="btn dark" data-value="3">3</button>
-        <button class="btn accent col-operator" data-action="operator" data-value="+">+</button>
-
-        <button class="btn grey" data-action="backspace">X</button>
-        <button class="btn dark zero" data-value="0">0</button>
-        <button class="btn dark" data-action="decimal">.</button>
-        <button class="btn accent col-operator" data-action="equals">=</button>
-      </div>
-    </div>
+  <div class="loader-wrap" id="loaderWrap">
+    <div class="loader" aria-hidden="true"></div>
+    <div class="loading-text">Loading...</div>
   </div>
 
-  <script>
-    (function(){
-      const displayMain = document.getElementById('main');
-      const subdisplay = document.getElementById('subdisplay');
-      const buttons = document.getElementById('buttons');
+  <div class="burst" id="burst"></div>
+  <img id="gift" alt="Gift Image">
+  <img class="sparkle" id="sparkle" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23FFD54F' d='M12 2l1.8 4.2L18 8l-4.2 1.8L12 14l-1.8-4.2L6 8l4.2-1.8L12 2z'/></svg>" />
 
-      let displayValue = '0';
-      let firstOperand = null;
-      let operator = null;
-      let waitingForSecond = false;
-      let lastSecond = null;
+  <div class="error" id="errorBox">
+    <div style="font-weight:700; color:#d33;">Image failed to load</div>
+    <div style="color:#444; font-size:14px;">Network slow या image missing हो सकती है.</div>
+    <button id="retryBtn">Try again</button>
+  </div>
+</div>
 
-      function updateDisplay(){
-        const maxLen = 12;
-        let out = displayValue;
-        if (out.length > maxLen){
-          let num = Number(out);
-          out = num.toPrecision(9);
-        }
-        displayMain.textContent = out;
-        if (firstOperand !== null && operator !== null && !waitingForSecond){
-          subdisplay.textContent = `${firstOperand} ${operator} `;
-        } else if (firstOperand !== null && operator !== null && waitingForSecond){
-          subdisplay.textContent = `${firstOperand} ${operator}`;
-        } else {
-          subdisplay.textContent = '';
-        }
-      }
+<script>
+/*
+  Behavior:
+  - Choose ONE random image
+  - Show loader until it finishes loading
+  - After load: hide loader -> show image -> burst + blast (once)
+  - If error: show retry overlay
+  - Click image to replay the blast (no re-download)
+*/
 
-      function inputDigit(d){
-        if (waitingForSecond) {
-          displayValue = d;
-          waitingForSecond = false;
-        } else {
-          displayValue = (displayValue === '0') ? d : displayValue + d;
-        }
-        updateDisplay();
-      }
+const images = [
+"https://i.ibb.co/mV7DHyPL/Photoroom-20251013-093124-1.png"
+"https://i.ibb.co/JwzzMbsf/Photoroom-20251013-093124-2.png",
+"https://i.ibb.co/RRmB4yH/Photoroom-20251013-093124-3.png",
+"https://i.ibb.co/gZgdTNCD/Photoroom-20251013-093124-4.png",
+"https://i.ibb.co/cX6rq3MC/Photoroom-20251013-093124-5.png",
+];
 
-      function inputDecimal(){
-        if (waitingForSecond){
-          displayValue = '0.';
-          waitingForSecond = false;
-          updateDisplay();
-          return;
-        }
-        if (!displayValue.includes('.')){
-          displayValue = displayValue + '.';
-          updateDisplay();
-        }
-      }
+const gift = document.getElementById('gift');
+const loaderWrap = document.getElementById('loaderWrap');
+const burst = document.getElementById('burst');
+const errorBox = document.getElementById('errorBox');
+const retryBtn = document.getElementById('retryBtn');
+const sparkle = document.getElementById('sparkle');
 
-      function clearAll(){
-        displayValue = '0';
-        firstOperand = null;
-        operator = null;
-        waitingForSecond = false;
-        lastSecond = null;
-        updateDisplay();
-      }
+let currentSrc = null;
+let playedOnce = false;
 
-      function toggleSign(){
-        if (displayValue === '0') return;
-        if (displayValue.startsWith('-')){
-          displayValue = displayValue.slice(1);
-        } else {
-          displayValue = '-' + displayValue;
-        }
-        updateDisplay();
-      }
+function pickOneAndLoad() {
+  // choose a random index
+  const idx = Math.floor(Math.random() * images.length);
+  const src = images[idx];
+  currentSrc = src;
+  playedOnce = false;
 
-      function percent(){
-        let num = parseFloat(displayValue);
-        if (isNaN(num)) return;
-        num = num / 100;
-        displayValue = String(num);
-        updateDisplay();
-      }
+  // reset UI
+  loaderWrap.style.display = 'flex';
+  gift.style.display = 'none';
+  gift.classList.remove('blast');
+  burst.classList.remove('animate');
+  sparkle.classList.remove('show');
+  errorBox.style.display = 'none';
 
-      function backspace(){
-        if (!waitingForSecond){
-          displayValue = displayValue.length > 1 ? displayValue.slice(0,-1) : '0';
-          updateDisplay();
-        }
-      }
+  // load only the selected image
+  const img = new Image();
+  img.src = src;
 
-      function performCalculation(op, a, b){
-        a = Number(a); b = Number(b);
-        switch(op){
-          case '+': return a + b;
-          case '-': return a - b;
-          case '*': return a * b;
-          case '/': return b === 0 ? NaN : a / b;
-        }
-        return b;
-      }
+  // set sensible timeout in case remote host is very slow
+  const loadTimeout = setTimeout(() => {
+    // if not loaded by 6s, show a gentle retry message
+    if (!gift.complete || gift.src !== src) {
+      loaderWrap.style.display = 'none';
+      errorBox.style.display = 'flex';
+    }
+  }, 6000);
 
-      function handleOperator(nextOperator){
-        const inputValue = displayValue;
-        if (firstOperand === null){
-          firstOperand = inputValue;
-        } else if (operator) {
-          if (!waitingForSecond){
-            const result = performCalculation(operator, firstOperand, inputValue);
-            displayValue = String(result);
-            firstOperand = displayValue;
-          }
-        }
-        waitingForSecond = true;
-        operator = nextOperator;
-        updateDisplay();
-      }
+  img.onload = () => {
+    clearTimeout(loadTimeout);
+    loaderWrap.style.display = 'none';
+    gift.src = src;
+    gift.style.display = 'block';
 
-      function handleEquals(){
-        if (!operator) return;
-        let second = waitingForSecond ? lastSecond : displayValue;
-        if (second === null) return;
-        const result = performCalculation(operator, firstOperand, second);
-        if (!isFinite(result) || isNaN(result)){
-          displayValue = 'Error';
-        } else {
-          displayValue = String(result);
-        }
-        lastSecond = second;
-        firstOperand = displayValue;
-        waitingForSecond = true;
-        updateDisplay();
-      }
+    // small delay to allow rendering, then play effects
+    requestAnimationFrame(() => {
+      // burst and blast
+      burst.classList.add('animate');
+      setTimeout(() => {
+        gift.classList.add('blast');
+      }, 150);
 
-      buttons.addEventListener('click', (e)=>{
-        const btn = e.target.closest('button');
-        if (!btn) return;
-        const val = btn.getAttribute('data-value');
-        const action = btn.getAttribute('data-action');
+      // sparkle to make lively
+      setTimeout(() => {
+        sparkle.classList.add('show');
+      }, 500);
 
-        if (val && /^[0-9]$/.test(val)){
-          inputDigit(val);
-          return;
-        }
-        if (action === 'decimal') { inputDecimal(); return; }
-        if (action === 'clear') { clearAll(); return; }
-        if (action === 'neg') { toggleSign(); return; }
-        if (action === 'percent') { percent(); return; }
-        if (action === 'backspace') { backspace(); return; }
-        if (action === 'operator'){
-          handleOperator(btn.getAttribute('data-value'));
-          return;
-        }
-        if (action === 'equals'){ handleEquals(); return; }
-      });
+      // mark played
+      playedOnce = true;
+    });
+  };
 
-      window.addEventListener('keydown', (e)=>{
-        if (e.key >= '0' && e.key <= '9'){ inputDigit(e.key); return; }
-        if (e.key === '.') { inputDecimal(); return; }
-        if (e.key === 'Enter' || e.key === '=') { handleEquals(); return; }
-        if (e.key === 'Backspace') { backspace(); return; }
-        if (e.key === 'Escape') { clearAll(); return; }
-        if (['+','-','/','*'].includes(e.key)) { handleOperator(e.key); return; }
-        if (e.key === '%') { percent(); return; }
-        if (e.key === 'n') { toggleSign(); return; }
-      });
+  img.onerror = () => {
+    clearTimeout(loadTimeout);
+    loaderWrap.style.display = 'none';
+    errorBox.style.display = 'flex';
+  };
+}
 
-      updateDisplay();
-    })();
-  </script>
+// Click image to replay the visual effect (no reload)
+gift.addEventListener('click', () => {
+  if (!gift.src) return;
+  // replay burst & blast
+  burst.classList.remove('animate');
+  gift.classList.remove('blast');
+  sparkle.classList.remove('show');
+
+  // small reflow to restart animations
+  void burst.offsetWidth;
+  void gift.offsetWidth;
+
+  burst.classList.add('animate');
+  setTimeout(() => gift.classList.add('blast'), 120);
+  setTimeout(() => sparkle.classList.add('show'), 480);
+});
+
+// Retry button
+retryBtn.addEventListener('click', () => {
+  pickOneAndLoad();
+});
+
+// initial load: only ONE image
+pickOneAndLoad();
+</script>
+
 </body>
 </html>
