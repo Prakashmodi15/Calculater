@@ -1,1 +1,1 @@
-https://prakashmodi15.github.io/Calculater/Index.html
+https://prakashmodi15.github.io/Calculater/index.html
